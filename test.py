@@ -18,20 +18,18 @@ from sklearn.externals import joblib
 from skimage.feature import hog
 from hand_rec import prediction,hog_extract,load_images_from_folder,createLabels,find_max,sliding_window
 
+# Load the trained classifier and pca for predictions
 best_clf = joblib.load("clf.sav")
 pca = joblib.load("pca.sav")
 
 ap = argparse.ArgumentParser()
 
 ap.add_argument("--image",help="Image path")
-ap.add_argument("--folder",help="Folder path")
 
 args = ap.parse_args()
 
 if args.image is not None:
     test_image = io.imread(args.image,as_grey=True)
-elif args.folder is not None:
-    folder_path = args.folder
 else:
     print "No image to test"
     exit()
@@ -39,6 +37,10 @@ else:
 
 labels = [i for i in range(1,6)]
 no_of_label = 1000/len(labels)
+
+# Resizing the image to 240x320 pixels for faster prediction
+resized_image = cv2.resize(test_image,(320,240))
+prediction(best_clf,pca,resized_image,show=True)
 
 
 # Test
@@ -56,6 +58,3 @@ no_of_label = 1000/len(labels)
 # print "Test Done, Score:"
 # print accuracy_score(test_y,test_pred_list)
 # print confusion_matrix(test_y,test_pred_list)
-
-resized_image = cv2.resize(test_image,(320,240))
-prediction(best_clf,pca,resized_image,show=True)
